@@ -18,8 +18,8 @@ export function Header() {
           aria-label="CUVETSMO Labs home"
         >
           <Image
-            src="/smo-logo.png"
-            alt="CUVETSMO"
+            src="/labs-logo-mark.png"
+            alt="CUVETSMO Labs"
             width={32}
             height={32}
             className="rounded"
