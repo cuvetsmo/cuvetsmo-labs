@@ -84,6 +84,47 @@ export const metadata: Metadata = {
   },
 };
 
+// Organization schema teaches Google that labs.cuvetsmo.com is a
+// sub-organization of CUVETSMO. The bare-word search "cuvetsmo"
+// should pick us up via alternateName + parentOrganization links.
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": "https://labs.cuvetsmo.com/#org",
+  name: "CUVETSMO Labs",
+  alternateName: [
+    "CUVETSMO Labs",
+    "cuvetsmo labs",
+    "Labs CUVETSMO",
+    "labs.cuvetsmo.com",
+    "CUVETSMO Experimental Labs",
+    "CUVETSMO",
+    "cuvetsmo",
+  ],
+  url: "https://labs.cuvetsmo.com/",
+  logo: "https://labs.cuvetsmo.com/labs-logo.png",
+  image: "https://labs.cuvetsmo.com/og.png",
+  description:
+    "Umbrella for experimental tools built by Thai veterinary students at Chulalongkorn University. Imaging, Web3, AI, Robotics labs.",
+  parentOrganization: {
+    "@type": "Organization",
+    "@id": "https://cuvetsmo.com/#smo",
+    name: "CUVETSMO",
+    url: "https://cuvetsmo.com/",
+  },
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://labs.cuvetsmo.com/#website",
+  name: "CUVETSMO Labs",
+  alternateName: ["cuvetsmo labs", "Labs CUVETSMO"],
+  url: "https://labs.cuvetsmo.com/",
+  inLanguage: ["th", "en"],
+  publisher: { "@id": "https://labs.cuvetsmo.com/#org" },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -94,6 +135,16 @@ export default function RootLayout({
       lang="th"
       className={`${interTight.variable} ${ibmPlexSansThai.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

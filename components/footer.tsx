@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 /**
@@ -30,17 +31,35 @@ export function Footer() {
   const year = new Date().getFullYear();
   return (
     <footer
-      className="mt-auto border-t border-[var(--color-border)] bg-[var(--color-bg)]"
+      className="relative mt-auto border-t border-[var(--color-border)] bg-[var(--color-bg)] overflow-hidden"
       role="contentinfo"
     >
-      <div className="max-w-5xl mx-auto px-6 sm:px-10 py-14">
+      {/* Atom mark watermark — large, cream-on-cream, fades behind the
+          content so the labs identity reads without shouting. */}
+      <Image
+        src="/labs-logo-mark.png"
+        alt=""
+        aria-hidden
+        width={420}
+        height={420}
+        className="pointer-events-none select-none absolute -left-20 -bottom-20 opacity-[0.05]"
+      />
+
+      <div className="relative max-w-5xl mx-auto px-6 sm:px-10 py-14">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-10 gap-x-6">
           <div className="col-span-2 sm:col-span-1">
             <Link
               href="https://labs.cuvetsmo.com"
-              className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.2em] text-[var(--color-muted)] hover:text-[var(--color-brand)] transition-colors"
+              className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-[var(--color-muted)] hover:text-[var(--color-brand)] transition-colors"
               aria-label="Powered by CUVETSMO Labs"
             >
+              <Image
+                src="/labs-logo-mark.png"
+                alt="CUVETSMO Labs"
+                width={18}
+                height={18}
+                className="rounded-[3px]"
+              />
               Powered by CUVETSMO Labs
               <span aria-hidden className="text-xs">↗</span>
             </Link>
