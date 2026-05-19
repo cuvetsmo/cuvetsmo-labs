@@ -1,19 +1,24 @@
 import Image from "next/image";
 import type { Metadata } from "next";
+import { EcosystemBar } from "@/components/ecosystem-bar";
 import { Footer } from "@/components/footer";
 import { PlotDecoration } from "@/components/PlotDecoration";
 import { LABS, STATUS_LABEL, type Lab } from "@/lib/labs";
 
 /**
- * labs.cuvetsmo.com — index page (editorial / Anthropic-research voice).
+ * labs.cuvetsmo.com — index page.
  *
  * Composition:
- *   1. Quiet header band — top-left brand mark + small nav anchor
- *   2. Headline section — left-aligned, narrow editorial column
- *   3. Labs list — restrained rows, each with an inline SVG plot decoration
- *   4. Footnote (about, contact) — narrow column, low chroma
+ *   1. Ecosystem bar — shared CUVETSMO mark + 4 site nav
+ *   2. Brand header — top-left mark + page nav
+ *   3. Hero — bold headline, atom mark on the right, stats row
+ *   4. Live now section — featured cards for the 2 labs that are live
+ *   5. Lab index — restrained rows for everything (web3, imaging, ai, robotics)
+ *   6. About — narrow editorial column
  *
- * Reference voice: anthropic.com/research, observablehq.com.
+ * Voice: anthropic.com/research meets observablehq.com. Pushed the volume
+ * up from "academic restraint" to "confident experimental" per Palms
+ * 2026-05-20 directive ("เด่นและเจ๋งกว่านี้").
  */
 
 export const metadata: Metadata = {
@@ -38,12 +43,6 @@ export const metadata: Metadata = {
   },
 };
 
-/**
- * Per-lab plot signature.
- *
- * Hand-tuned tiny series so each lab has a distinct decoration.
- * `tone` switches the stroke color, keeping the cream surface coherent.
- */
 const PLOT_SIGNATURES: Record<string, { data: number[]; tone: "warm" | "cool" | "bio" | "mute" }> = {
   imaging: { data: [4, 5, 7, 6, 9, 11, 10, 14, 12, 16], tone: "cool" },
   web3:    { data: [2, 6, 5, 10, 9, 14, 13, 18, 17, 22], tone: "bio" },
@@ -58,13 +57,25 @@ const TONE_COLORS: Record<"warm" | "cool" | "bio" | "mute", { stroke: string; fi
   mute: { stroke: "#B0AEA5", fill: "rgba(176, 174, 165, 0.18)" },
 };
 
+// Featured cards reach for one of these mark images. Mirrors what each
+// sub-brand ships on its own subdomain so visitors recognize the logo
+// when they click through.
+const FEATURED_MARKS: Record<string, string> = {
+  web3: "/web3-logo-mark.png",
+  imaging: "/imaging-logo-mark.png",
+};
+
 export default function LabsIndexPage() {
   const liveCount = LABS.filter((l) => l.status === "live").length;
   const comingCount = LABS.filter((l) => l.status === "coming-soon").length;
+  const plannedCount = LABS.filter((l) => l.status === "planned" || l.status === "future").length;
+  const liveLabs = LABS.filter((l) => l.status === "live");
 
   return (
     <>
-      {/* ─── Quiet header band ─── */}
+      <EcosystemBar current="labs" />
+
+      {/* ─── Brand header ─── */}
       <header className="border-b border-[var(--color-border)]" role="banner">
         <div className="max-w-5xl mx-auto px-6 sm:px-10 py-5 flex items-center justify-between gap-6">
           <a
@@ -87,10 +98,16 @@ export default function LabsIndexPage() {
           </a>
           <nav aria-label="Primary" className="flex items-center gap-6 text-sm">
             <a
+              href="#live"
+              className="text-[var(--color-muted)] hover:text-[var(--color-brand)] transition-colors"
+            >
+              Live now
+            </a>
+            <a
               href="#labs"
               className="text-[var(--color-muted)] hover:text-[var(--color-brand)] transition-colors"
             >
-              Labs
+              All labs
             </a>
             <a
               href="#about"
@@ -98,53 +115,95 @@ export default function LabsIndexPage() {
             >
               About
             </a>
-            <a
-              href="https://cuvetsmo.com"
-              className="hidden sm:inline text-[var(--color-muted)] hover:text-[var(--color-brand)] transition-colors"
-            >
-              cuvetsmo.com
-            </a>
           </nav>
         </div>
       </header>
 
       <main className="flex-1">
-        {/* ─── Headline ─── */}
-        <section className="max-w-5xl mx-auto px-6 sm:px-10 pt-20 sm:pt-28 pb-16 sm:pb-24">
-          <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-brand)] mb-6 animate-fade-up">
-            CUVETSMO Labs
-          </p>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl max-w-3xl font-semibold animate-fade-up">
-            Experimental tools by Chula Vet students.
-          </h1>
-          <p
-            className="mt-6 max-w-2xl text-[var(--color-muted)] text-lg leading-[1.75] animate-fade-up"
-            style={{ animationDelay: "0.05s" }}
-          >
-            ที่ทดลองของนิสิตสัตวแพทย์ จุฬาฯ — เครื่องมือ, prototype, การเรียนรู้แบบใหม่
-            ที่นิสิตสร้างขึ้นเองเพื่อแก้ปัญหาจริงในคลินิกและห้องเรียน.
-          </p>
+        {/* ─── Hero ─── */}
+        <section className="relative max-w-5xl mx-auto px-6 sm:px-10 pt-16 sm:pt-24 pb-20 sm:pb-28">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
+            <div className="md:col-span-7 lg:col-span-8">
+              <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-brand)] mb-6 animate-fade-up font-semibold">
+                CUVETSMO Labs
+              </p>
+              <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.05] animate-fade-up text-[var(--color-text-strong)]">
+                Built by{" "}
+                <span className="relative inline-block">
+                  <span className="relative z-10">Chula Vet</span>
+                  <span
+                    aria-hidden
+                    className="absolute -bottom-1 left-0 right-0 h-3 bg-[var(--color-brand)]/25 -z-0"
+                  />
+                </span>{" "}
+                students.
+              </h1>
+              <p
+                className="mt-8 max-w-2xl text-[var(--color-muted)] text-lg sm:text-xl leading-[1.65] animate-fade-up"
+                style={{ animationDelay: "0.05s" }}
+              >
+                เครื่องมือทดลองที่นิสิตสร้างขึ้นเอง เพื่อแก้ปัญหาจริงในคลินิก ห้องเรียน
+                และ web ของชุมชนสัตวแพทย์ จุฬาฯ.
+              </p>
 
-          <div
-            className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[var(--color-muted)] animate-fade-up"
-            style={{ animationDelay: "0.1s" }}
-          >
-            <span className="inline-flex items-center gap-2">
-              <span className="status-dot status-dot--live" aria-hidden />
-              {liveCount} live
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <span className="status-dot status-dot--coming" aria-hidden />
-              {comingCount} coming soon
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <span className="status-dot status-dot--future" aria-hidden />
-              {LABS.length} labs total
-            </span>
+              <div
+                className="mt-12 flex flex-wrap items-baseline gap-x-10 gap-y-4 animate-fade-up"
+                style={{ animationDelay: "0.1s" }}
+              >
+                <Stat number={liveCount} label="live now" tone="bio" />
+                <Stat number={comingCount + plannedCount} label="in development" tone="muted" />
+                <Stat number={LABS.length} label="labs total" tone="brand" />
+              </div>
+            </div>
+
+            <div className="md:col-span-5 lg:col-span-4 flex justify-center md:justify-end">
+              <div className="relative">
+                <Image
+                  src="/labs-logo-mark.png"
+                  alt=""
+                  width={320}
+                  height={320}
+                  priority
+                  className="relative z-10 drop-shadow-[0_18px_50px_rgba(217,119,87,0.18)]"
+                />
+                <div
+                  aria-hidden
+                  className="absolute inset-0 -m-8 bg-[radial-gradient(60%_60%_at_50%_50%,rgba(217,119,87,0.18),transparent_72%)] -z-0"
+                />
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* ─── Labs list ─── */}
+        {/* ─── Live now — featured cards ─── */}
+        <section
+          id="live"
+          className="border-t border-[var(--color-border)] bg-[var(--color-surface-2)]/40 scroll-mt-20"
+        >
+          <div className="max-w-5xl mx-auto px-6 sm:px-10 py-16 sm:py-20">
+            <div className="mb-10 flex items-end justify-between gap-6 flex-wrap">
+              <div>
+                <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-brand)] mb-3 font-semibold">
+                  Live now
+                </p>
+                <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[var(--color-text-strong)]">
+                  Try them today.
+                </h2>
+              </div>
+              <p className="text-sm text-[var(--color-muted)] max-w-sm">
+                Both have their own subdomain and theme. Click a card to jump.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {liveLabs.map((lab) => (
+                <FeaturedLab key={lab.slug} lab={lab} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ─── All labs — restrained index ─── */}
         <section
           id="labs"
           className="border-t border-[var(--color-border)] scroll-mt-20"
@@ -154,12 +213,12 @@ export default function LabsIndexPage() {
             <div className="mb-12 flex items-baseline justify-between gap-6 flex-wrap">
               <h2
                 id="labs-heading"
-                className="text-2xl sm:text-3xl font-semibold"
+                className="text-2xl sm:text-3xl font-semibold text-[var(--color-text-strong)]"
               >
-                The lab index
+                All labs
               </h2>
               <p className="text-sm text-[var(--color-muted)] max-w-md">
-                Each lab has its own audience, stack, and subdomain. Click in to read what we are building and try the live tools.
+                Each lab has its own audience, stack, and subdomain. Live ones link out, planned ones preview what is coming.
               </p>
             </div>
 
@@ -171,16 +230,16 @@ export default function LabsIndexPage() {
           </div>
         </section>
 
-        {/* ─── About / footnote ─── */}
+        {/* ─── About ─── */}
         <section
           id="about"
           className="border-t border-[var(--color-border)] bg-[var(--color-surface-2)]/40 scroll-mt-20"
         >
           <div className="max-w-3xl mx-auto px-6 sm:px-10 py-20 sm:py-24">
-            <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-brand)] mb-6">
+            <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-brand)] mb-6 font-semibold">
               About
             </p>
-            <h2 className="text-2xl sm:text-3xl font-semibold mb-8">
+            <h2 className="text-2xl sm:text-3xl font-semibold mb-8 text-[var(--color-text-strong)]">
               What CUVETSMO Labs is.
             </h2>
             <div className="space-y-6 text-[var(--color-text)] leading-[1.75] text-base">
@@ -236,6 +295,80 @@ export default function LabsIndexPage() {
   );
 }
 
+function Stat({ number, label, tone }: { number: number; label: string; tone: "bio" | "muted" | "brand" }) {
+  const numberClass = (() => {
+    switch (tone) {
+      case "bio": return "text-[var(--color-accent-bio)]";
+      case "brand": return "text-[var(--color-brand)]";
+      default: return "text-[var(--color-text-strong)]";
+    }
+  })();
+  return (
+    <div>
+      <div className={`text-4xl sm:text-5xl font-bold tabular-nums tracking-tight ${numberClass}`}>
+        {number}
+      </div>
+      <div className="mt-1 text-xs uppercase tracking-[0.18em] text-[var(--color-muted)]">
+        {label}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * FeaturedLab — bigger card for labs in the "Live now" row. Shows the
+ * sub-brand mark prominently plus the EN description as a teaser. Hover
+ * lifts subtly to signal clickability.
+ */
+function FeaturedLab({ lab }: { lab: Lab }) {
+  const mark = FEATURED_MARKS[lab.slug];
+  const url = lab.url ?? "#";
+  return (
+    <a
+      href={url}
+      target={lab.url ? "_blank" : undefined}
+      rel={lab.url ? "noopener noreferrer" : undefined}
+      className="group block bg-[var(--color-bg)] border border-[var(--color-border)] rounded-lg p-7 transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-12px_rgba(217,119,87,0.18)] hover:border-[var(--color-brand)]/40"
+    >
+      <div className="flex items-start gap-5">
+        {mark ? (
+          <Image
+            src={mark}
+            alt=""
+            width={64}
+            height={64}
+            className="rounded-md shrink-0"
+          />
+        ) : (
+          <span className="text-4xl shrink-0" aria-hidden>
+            {lab.icon}
+          </span>
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2.5 mb-2">
+            <span className="status-dot status-dot--live" aria-hidden />
+            <span className="text-xs uppercase tracking-[0.16em] text-[var(--color-accent-bio)] font-semibold">
+              Live
+            </span>
+          </div>
+          <h3 className="text-2xl font-bold tracking-tight text-[var(--color-text-strong)] mb-2">
+            {lab.name}
+          </h3>
+          <p className="text-sm text-[var(--color-text)] leading-[1.65] line-clamp-3">
+            {lab.descEn}
+          </p>
+          <div className="mt-5 flex items-center gap-2 text-sm font-medium text-[var(--color-brand)]">
+            <span>{new URL(url, "https://labs.cuvetsmo.com").hostname}</span>
+            <span aria-hidden className="inline-block transition-transform group-hover:translate-x-1">
+              ↗
+            </span>
+          </div>
+        </div>
+      </div>
+    </a>
+  );
+}
+
 /**
  * One lab row in the index list — wordmark left, description middle, plot
  * decoration right. Live/coming-soon rows are clickable; planned/future stay
@@ -260,12 +393,10 @@ function LabRow({ lab }: { lab: Lab }) {
 
   const body = (
     <div className="grid grid-cols-12 gap-4 sm:gap-6 items-center py-7 sm:py-8">
-      {/* index number */}
       <div className="col-span-12 sm:col-span-1 text-xs font-mono text-[var(--color-muted)] tabular-nums">
         {`0${LABS.findIndex((l) => l.slug === lab.slug) + 1}`}
       </div>
 
-      {/* title + description */}
       <div className="col-span-12 sm:col-span-7">
         <div className="flex items-center gap-3 mb-1.5">
           <span className={dotClass} aria-hidden />
@@ -294,7 +425,6 @@ function LabRow({ lab }: { lab: Lab }) {
         </dl>
       </div>
 
-      {/* plot decoration */}
       <div className="col-span-9 sm:col-span-3 flex items-center justify-start sm:justify-end">
         <PlotDecoration
           data={signature.data}
@@ -306,7 +436,6 @@ function LabRow({ lab }: { lab: Lab }) {
         />
       </div>
 
-      {/* affordance */}
       <div className="col-span-3 sm:col-span-1 text-right">
         {isLinkable ? (
           <span

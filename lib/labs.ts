@@ -27,13 +27,13 @@ export const LABS: Lab[] = [
   {
     slug: "imaging",
     name: "Imaging Lab",
-    icon: "📷",
-    status: "coming-soon",
+    icon: "🩻",
+    status: "live",
     url: "https://imaging.cuvetsmo.com",
     descTh:
-      "ดู X-ray, ultrasound, MRI พร้อม AI overlays — Norberg angle, VHS score, image occlusion เรียนแบบ interactive",
+      "DICOM viewer ในเบราว์เซอร์ พร้อม overlay วัด Norberg angle (hip dysplasia) และ Vertebral Heart Score, บวก image occlusion สำหรับท่อง anatomy",
     descEn:
-      "DICOM viewer with AI overlays — Norberg angle, VHS score, image occlusion learning",
+      "Browser-based DICOM viewer with Norberg angle (hip dysplasia) overlay, Vertebral Heart Score, and image-occlusion learning",
     audience: "นิสิตคลินิก Y4-Y6",
     tech: "DICOM, AI overlays",
     accent: "from-sky-500/10 to-sky-700/10",
