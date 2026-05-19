@@ -2,51 +2,51 @@ import Image from "next/image";
 import Link from "next/link";
 
 /**
- * Minimal header for the labs index — wordmark left, "All Labs" anchor right.
- * No mobile menu needed (single-page index).
+ * Minimal header — used by secondary pages (e.g. not-found).
+ * The home page renders its own inline header to control composition.
  */
 export function Header() {
   return (
     <header
-      className="sticky top-0 z-40 bg-[var(--color-bg)]/85 backdrop-blur border-b border-[var(--color-border)]"
+      className="border-b border-[var(--color-border)] bg-[var(--color-bg)]"
       role="banner"
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+      <div className="max-w-5xl mx-auto px-6 sm:px-10 py-5 flex items-center justify-between gap-6">
         <Link
           href="/"
-          className="flex items-center gap-2.5 shrink-0"
+          className="flex items-center gap-3 shrink-0"
           aria-label="CUVETSMO Labs home"
         >
           <Image
             src="/labs-logo-mark.png"
-            alt="CUVETSMO Labs"
-            width={32}
-            height={32}
-            className="rounded"
+            alt=""
+            width={28}
+            height={28}
+            className="rounded-sm opacity-90"
             priority
           />
-          <span className="font-semibold text-[15px] tracking-tight">
-            <span className="hidden sm:inline">CUVETSMO Labs</span>
-            <span className="sm:hidden">Labs</span>
+          <span className="text-sm tracking-tight text-[var(--color-text-strong)]">
+            <span className="font-semibold">CUVETSMO</span>
+            <span className="text-[var(--color-muted)]"> Labs</span>
           </span>
         </Link>
 
-        <nav aria-label="Primary" className="flex items-center gap-1">
+        <nav aria-label="Primary" className="flex items-center gap-6 text-sm">
           <a
-            href="#labs"
-            className="px-3 py-2 rounded-md text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-brand-light)] hover:text-[var(--color-brand)] transition-colors"
+            href="/#labs"
+            className="text-[var(--color-muted)] hover:text-[var(--color-brand)] transition-colors"
           >
-            All Labs
+            Labs
           </a>
           <a
-            href="#about"
-            className="px-3 py-2 rounded-md text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-brand-light)] hover:text-[var(--color-brand)] transition-colors"
+            href="/#about"
+            className="text-[var(--color-muted)] hover:text-[var(--color-brand)] transition-colors"
           >
             About
           </a>
           <a
             href="https://cuvetsmo.com"
-            className="hidden sm:inline-flex px-3 py-2 rounded-md text-sm font-medium text-[var(--color-muted)] hover:bg-[var(--color-brand-light)] hover:text-[var(--color-brand)] transition-colors"
+            className="hidden sm:inline text-[var(--color-muted)] hover:text-[var(--color-brand)] transition-colors"
           >
             cuvetsmo.com
           </a>

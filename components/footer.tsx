@@ -1,45 +1,61 @@
 import Link from "next/link";
 
 /**
- * Site footer for labs.cuvetsmo.com — slim, shared brand vibe with
- * cuvetsmo.com / web3.cuvetsmo.com.
+ * Footer for labs.cuvetsmo.com — subtle, cream-on-cream.
+ *
+ * Carries the shared "Powered by CUVETSMO Labs ↗" unit used across all
+ * three subdomains (web3 / labs / imaging). On the labs subdomain itself
+ * the link points back to its own root so the brand mark is reachable from
+ * every page.
  */
 
 const PROJECT_LINKS = [
-  { href: "https://cuvetsmo.com", label: "cuvetsmo.com (main)", external: true },
-  { href: "https://web3.cuvetsmo.com", label: "Web3 Lab", external: true },
-  { href: "https://imaging.cuvetsmo.com", label: "Imaging Lab", external: true },
+  { href: "https://cuvetsmo.com", label: "cuvetsmo.com" },
+  { href: "https://web3.cuvetsmo.com", label: "Web3 Lab" },
+  { href: "https://imaging.cuvetsmo.com", label: "Imaging Lab" },
 ];
 
 const COMMUNITY_LINKS = [
-  { href: "https://github.com/cuvetsmo", label: "GitHub", external: true },
-  { href: "https://status.cuvetsmo.com", label: "Status", external: true },
-  { href: "https://instagram.com/cuvetsmo", label: "Instagram", external: true },
+  { href: "https://github.com/cuvetsmo", label: "GitHub" },
+  { href: "https://status.cuvetsmo.com", label: "Status" },
+  { href: "https://instagram.com/cuvetsmo", label: "Instagram" },
 ];
 
 const CONTACT_LINKS = [
-  { href: "mailto:palm@cuvetsmo.com", label: "palm@cuvetsmo.com", external: true },
-  { href: "mailto:contact@cuvetsmo.com", label: "contact@cuvetsmo.com", external: true },
+  { href: "mailto:palm@cuvetsmo.com", label: "palm@cuvetsmo.com" },
+  { href: "mailto:contact@cuvetsmo.com", label: "contact@cuvetsmo.com" },
 ];
 
 export function Footer() {
   const year = new Date().getFullYear();
   return (
     <footer
-      className="mt-auto border-t border-[var(--color-border)] bg-[var(--color-card)]"
+      className="mt-auto border-t border-[var(--color-border)] bg-[var(--color-bg)]"
       role="contentinfo"
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+      <div className="max-w-5xl mx-auto px-6 sm:px-10 py-14">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-10 gap-x-6">
+          <div className="col-span-2 sm:col-span-1">
+            <Link
+              href="https://labs.cuvetsmo.com"
+              className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.2em] text-[var(--color-muted)] hover:text-[var(--color-brand)] transition-colors"
+              aria-label="Powered by CUVETSMO Labs"
+            >
+              Powered by CUVETSMO Labs
+              <span aria-hidden className="text-xs">↗</span>
+            </Link>
+            <p className="mt-4 text-xs text-[var(--color-muted)] leading-[1.6] max-w-[18rem]">
+              สโมสรนิสิตคณะสัตวแพทยศาสตร์ จุฬาฯ — student-led experimental tools and platforms.
+            </p>
+          </div>
+
           <FooterColumn title="Labs" links={PROJECT_LINKS} />
           <FooterColumn title="Community" links={COMMUNITY_LINKS} />
           <FooterColumn title="Contact" links={CONTACT_LINKS} />
         </div>
 
-        <div className="mt-10 pt-6 border-t border-[var(--color-border)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-[var(--color-muted)]">
-          <p className="leading-relaxed">
-            Built by CUVETSMO — สโมสรนิสิตคณะสัตวแพทยศาสตร์ จุฬาฯ
-          </p>
+        <div className="mt-12 pt-6 border-t border-[var(--color-border)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-[var(--color-muted)]">
+          <p>Built by CUVETSMO</p>
           <p className="font-mono">© {year} CUVETSMO Labs</p>
         </div>
       </div>
@@ -52,33 +68,30 @@ function FooterColumn({
   links,
 }: {
   title: string;
-  links: { href: string; label: string; external?: boolean }[];
+  links: { href: string; label: string }[];
 }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold mb-3">{title}</h3>
-      <ul className="space-y-2">
-        {links.map((link) => (
-          <li key={link.href}>
-            {link.external ? (
+      <h3 className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[var(--color-text-strong)] mb-4">
+        {title}
+      </h3>
+      <ul className="space-y-2.5">
+        {links.map((link) => {
+          const isMail = link.href.startsWith("mailto:");
+          const isExternal = link.href.startsWith("http");
+          return (
+            <li key={link.href}>
               <a
                 href={link.href}
-                target={link.href.startsWith("mailto:") ? undefined : "_blank"}
-                rel="noopener noreferrer"
+                target={!isMail && isExternal ? "_blank" : undefined}
+                rel={!isMail && isExternal ? "noopener noreferrer" : undefined}
                 className="text-sm text-[var(--color-muted)] hover:text-[var(--color-brand)] transition-colors"
               >
                 {link.label}
               </a>
-            ) : (
-              <Link
-                href={link.href}
-                className="text-sm text-[var(--color-muted)] hover:text-[var(--color-brand)] transition-colors"
-              >
-                {link.label}
-              </Link>
-            )}
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

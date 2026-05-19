@@ -1,15 +1,26 @@
 @import "tailwindcss";
 
+/*
+ * Theme 2 — labs.cuvetsmo.com
+ *
+ * Anthropic-research palette: cream surface, warm orange accent, near-black
+ * text. Editorial restraint. No dark mode (locked per visual-theme directions).
+ */
+
 :root {
-  --color-brand: #0369a1;
-  --color-brand-hover: #0c4a6e;
-  --color-brand-light: #e0f2fe;
-  --color-bg: #fafaf9;
-  --color-text: #1c1917;
-  --color-muted: #57534e;
-  --color-border: #e7e5e4;
-  --color-card: #ffffff;
-  --font-sans: var(--font-ibm-plex-sans-thai), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --color-bg: #FAF9F5;          /* cream surface */
+  --color-surface-2: #F2F0E8;   /* slightly darker cream for inset surfaces */
+  --color-text: #2C2C2C;        /* near-black body text */
+  --color-text-strong: #141413; /* headlines */
+  --color-muted: #76746B;       /* desaturated mid */
+  --color-border: #E8E6DD;      /* hairline borders */
+  --color-brand: #D97757;       /* warm orange accent */
+  --color-brand-hover: #C56544;
+  --color-accent-cool: #6A9BCC; /* secondary plot stroke */
+  --color-accent-bio: #788C5D;  /* live-status dot */
+
+  --font-display: var(--font-inter-tight), var(--font-ibm-plex-sans-thai), system-ui, -apple-system, sans-serif;
+  --font-body: var(--font-inter-tight), var(--font-ibm-plex-sans-thai), system-ui, -apple-system, sans-serif;
 }
 
 @theme inline {
@@ -17,22 +28,13 @@
   --color-foreground: var(--color-text);
   --color-brand: var(--color-brand);
   --color-brand-hover: var(--color-brand-hover);
-  --color-brand-light: var(--color-brand-light);
   --color-muted: var(--color-muted);
   --color-border: var(--color-border);
-  --color-card: var(--color-card);
-  --font-sans: var(--font-sans);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #0c0a09;
-    --color-text: #fafaf9;
-    --color-muted: #a8a29e;
-    --color-border: #292524;
-    --color-card: #1c1917;
-    --color-brand-light: #082f49;
-  }
+  --color-surface-2: var(--color-surface-2);
+  --color-accent-cool: var(--color-accent-cool);
+  --color-accent-bio: var(--color-accent-bio);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
 }
 
 html {
@@ -44,10 +46,19 @@ html {
 body {
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: var(--font-sans);
-  font-feature-settings: "kern" 1, "liga" 1;
+  font-family: var(--font-body);
+  font-feature-settings: "kern" 1, "liga" 1, "ss01" 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-feature-settings: "kern" 1, "ss01" 1;
+  color: var(--color-text-strong);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
 a {
@@ -59,75 +70,70 @@ button {
   font-family: inherit;
 }
 
-/* Brand utility classes */
+/* ─── Subtle plot-grid background utility ────────────────────────────────
+   A whisper-quiet graph paper grid — for the editorial pages where we
+   want the page to feel like a lab notebook without being noisy. */
+.plot-grid {
+  background-image:
+    linear-gradient(to right, rgba(20, 20, 19, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(20, 20, 19, 0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: -1px -1px;
+}
+
+.plot-grid-fine {
+  background-image:
+    linear-gradient(to right, rgba(20, 20, 19, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(20, 20, 19, 0.04) 1px, transparent 1px);
+  background-size: 16px 16px;
+  background-position: -1px -1px;
+}
+
+/* ─── Editorial primitives ─────────────────────────────────────────────── */
 .btn-brand {
   background: var(--color-brand);
-  color: #ffffff;
+  color: #FFFFFF;
   padding: 0.625rem 1.25rem;
   border-radius: 0.5rem;
   font-weight: 500;
-  transition: background 0.15s ease;
+  transition: background 0.2s ease;
 }
-
-.btn-brand:hover {
-  background: var(--color-brand-hover);
-}
+.btn-brand:hover { background: var(--color-brand-hover); }
 
 .btn-outline {
   background: transparent;
-  color: var(--color-brand);
-  border: 1px solid var(--color-brand);
+  color: var(--color-text-strong);
+  border: 1px solid var(--color-border);
   padding: 0.625rem 1.25rem;
   border-radius: 0.5rem;
   font-weight: 500;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: border-color 0.2s ease, color 0.2s ease;
 }
-
 .btn-outline:hover {
-  background: var(--color-brand);
-  color: #ffffff;
-}
-
-.card {
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.card:hover {
   border-color: var(--color-brand);
-  box-shadow: 0 4px 14px -4px rgba(3, 105, 161, 0.12);
+  color: var(--color-brand);
 }
 
-/* Subtle reveal animations */
+/* Status dots — pulled from the locked palette */
+.status-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+.status-dot--live { background: var(--color-accent-bio); }
+.status-dot--coming { background: var(--color-brand); }
+.status-dot--planned { background: var(--color-accent-cool); }
+.status-dot--future { background: var(--color-muted); }
+
 @keyframes labs-fade-up {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+.animate-fade-up { animation: labs-fade-up 0.6s ease-out both; }
 
-@keyframes labs-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-.animate-fade-up { animation: labs-fade-up 0.4s ease-out both; }
-.animate-fade-in { animation: labs-fade-in 0.4s ease-out both; }
-
-/* gradient-text utility for hero accents */
-.gradient-text {
-  background: linear-gradient(135deg, var(--color-brand) 0%, #6366f1 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* prefers-reduced-motion respect */
 @media (prefers-reduced-motion: reduce) {
-  .animate-fade-up,
-  .animate-fade-in {
-    animation: none !important;
-  }
+  .animate-fade-up { animation: none !important; }
   html { scroll-behavior: auto; }
 }
