@@ -79,7 +79,7 @@ export const LABS: Lab[] = [
     status: "live",
     url: "https://ai.cuvetsmo.com",
     descTh:
-      "AI ภาษาไทยฟรี ไม่ต้อง login ไม่เก็บข้อความ · ค้นงานวิจัย veterinary 250 ล้านบทความ · ค้นเว็บข่าวสารใหม่ · สร้างภาพประกอบได้ · มีอ้างอิงทุกคำตอบ",
+      "AI ภาษาไทยฟรี ไม่ต้อง login ไม่เก็บข้อความ ค้นงานวิจัย veterinary 250 ล้านบทความ ค้นเว็บข่าวสารใหม่ สร้างภาพประกอบได้ มีอ้างอิงทุกคำตอบ",
     descEn:
       "Free Thai AI chatbot — no login, no message storage. Search 250M veterinary research papers, query news from the web, generate illustrations. Every answer cites sources.",
     audience: "นักศึกษาทุก year + บุคลากร",
