@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { EcosystemBar } from "@/components/ecosystem-bar";
 import { Footer } from "@/components/footer";
 import { PlotDecoration } from "@/components/PlotDecoration";
-import { LABS, STATUS_LABEL, type Lab } from "@/lib/labs";
+import { LABS, STATUS_LABEL, CURRENT_FOCUS, type Lab } from "@/lib/labs";
+import { getCommitSignal, formatRelativeTime, type CommitSignal } from "@/lib/github";
 
 /**
  * labs.cuvetsmo.com — index page.
@@ -43,11 +44,16 @@ export const metadata: Metadata = {
   },
 };
 
-const PLOT_SIGNATURES: Record<string, { data: number[]; tone: "warm" | "cool" | "bio" | "mute" }> = {
-  imaging: { data: [4, 5, 7, 6, 9, 11, 10, 14, 12, 16], tone: "cool" },
-  web3:    { data: [2, 6, 5, 10, 9, 14, 13, 18, 17, 22], tone: "bio" },
-  ai:      { data: [8, 7, 9, 8, 12, 10, 15, 13, 18, 16], tone: "warm" },
-  robotics:{ data: [3, 5, 4, 7, 6, 8, 7, 9, 8, 10], tone: "mute" },
+/**
+ * Per-lab plot tone — color identity for the signature plot decoration on
+ * each lab row. The plot DATA now comes from real GitHub commit activity
+ * (see `lib/github.ts`); the tone here is purely the visual key per lab.
+ */
+const PLOT_TONES: Record<string, "warm" | "cool" | "bio" | "mute"> = {
+  imaging: "cool",
+  web3: "bio",
+  ai: "warm",
+  robotics: "mute",
 };
 
 const TONE_COLORS: Record<"warm" | "cool" | "bio" | "mute", { stroke: string; fill: string }> = {
@@ -65,11 +71,20 @@ const FEATURED_MARKS: Record<string, string> = {
   imaging: "/imaging-logo-mark.png",
 };
 
-export default function LabsIndexPage() {
+export default async function LabsIndexPage() {
   const liveCount = LABS.filter((l) => l.status === "live").length;
   const comingCount = LABS.filter((l) => l.status === "coming-soon").length;
   const plannedCount = LABS.filter((l) => l.status === "planned" || l.status === "future").length;
   const liveLabs = LABS.filter((l) => l.status === "live");
+
+  // Fetch GitHub commit signals in parallel — one HTTP round-trip per repo
+  // pair (stats + meta). Cached via Next.js `revalidate: 3600` inside
+  // `getCommitSignal`, so the home page only re-fetches once per hour.
+  const signals: Record<string, CommitSignal | null> = Object.fromEntries(
+    await Promise.all(
+      LABS.map(async (lab) => [lab.slug, await getCommitSignal(lab.githubRepo)] as const)
+    )
+  );
 
   return (
     <>
@@ -222,9 +237,27 @@ export default function LabsIndexPage() {
               </p>
             </div>
 
+            {CURRENT_FOCUS && (
+              <aside
+                aria-label="Current focus this week"
+                className="mb-10 flex items-start gap-3 rounded-md border border-[var(--color-brand)]/25 bg-[var(--color-brand)]/[0.04] px-4 py-3"
+              >
+                <span
+                  aria-hidden
+                  className="mt-[5px] inline-block h-2 w-2 rounded-full bg-[var(--color-brand)] animate-pulse"
+                />
+                <div className="flex-1 min-w-0 text-sm leading-[1.6]">
+                  <span className="text-[var(--color-muted)] uppercase tracking-[0.18em] text-[10px] font-semibold mr-2 align-middle">
+                    This week
+                  </span>
+                  <span className="text-[var(--color-text)] align-middle">{CURRENT_FOCUS}</span>
+                </div>
+              </aside>
+            )}
+
             <ul className="divide-y divide-[var(--color-border)] border-y border-[var(--color-border)]">
               {LABS.map((lab) => (
-                <LabRow key={lab.slug} lab={lab} />
+                <LabRow key={lab.slug} lab={lab} signal={signals[lab.slug] ?? null} />
               ))}
             </ul>
           </div>
@@ -372,14 +405,20 @@ function FeaturedLab({ lab }: { lab: Lab }) {
 /**
  * One lab row in the index list — wordmark left, description middle, plot
  * decoration right. Live/coming-soon rows are clickable; planned/future stay
- * static with a quieter affordance.
+ * static and surface a "notify me" mailto so dim rows still invite engagement.
+ *
+ * The plot data + last-activity badge come from real GitHub commit signals
+ * (`lib/github.ts`). When a lab has no repo yet, the row shows a "no signal
+ * yet" placeholder plot instead of fake numbers.
  */
-function LabRow({ lab }: { lab: Lab }) {
+function LabRow({ lab, signal }: { lab: Lab; signal: CommitSignal | null }) {
   const status = STATUS_LABEL[lab.status];
-  const signature = PLOT_SIGNATURES[lab.slug] ?? { data: [3, 5, 4, 6, 7, 9], tone: "mute" };
-  const colors = TONE_COLORS[signature.tone];
+  const tone = PLOT_TONES[lab.slug] ?? "mute";
+  const colors = TONE_COLORS[tone];
   const isLinkable = lab.url !== null;
   const isLive = lab.status === "live";
+  const plotData = signal?.weeklyCounts ?? [];
+  const lastActivity = formatRelativeTime(signal?.lastActivity ?? null);
 
   const dotClass = (() => {
     switch (lab.status) {
@@ -391,6 +430,14 @@ function LabRow({ lab }: { lab: Lab }) {
     }
   })();
 
+  const notifyHref =
+    `mailto:palm@cuvetsmo.com?subject=` +
+    encodeURIComponent(`Notify me when ${lab.name} launches`) +
+    `&body=` +
+    encodeURIComponent(
+      `Hi — please ping me when ${lab.name} is live on labs.cuvetsmo.com.\n\nName: \nRole: (student / clinician / engineer / other)\n`
+    );
+
   const body = (
     <div className="grid grid-cols-12 gap-4 sm:gap-6 items-center py-7 sm:py-8">
       <div className="col-span-12 sm:col-span-1 text-xs font-mono text-[var(--color-muted)] tabular-nums">
@@ -398,7 +445,7 @@ function LabRow({ lab }: { lab: Lab }) {
       </div>
 
       <div className="col-span-12 sm:col-span-7">
-        <div className="flex items-center gap-3 mb-1.5">
+        <div className="flex items-center gap-3 mb-1.5 flex-wrap">
           <span className={dotClass} aria-hidden />
           <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-[var(--color-text-strong)]">
             {lab.name}
@@ -406,6 +453,14 @@ function LabRow({ lab }: { lab: Lab }) {
           <span className="text-xs uppercase tracking-[0.16em] text-[var(--color-muted)]">
             {status.en}
           </span>
+          {lastActivity && (
+            <span
+              className="text-[11px] font-mono text-[var(--color-muted)] tabular-nums"
+              title={signal?.lastActivity ? `Last push: ${signal.lastActivity}` : undefined}
+            >
+              · last activity {lastActivity}
+            </span>
+          )}
         </div>
         <p className="text-[15px] text-[var(--color-text)] leading-[1.6] max-w-xl">
           {lab.descTh}
@@ -422,17 +477,26 @@ function LabRow({ lab }: { lab: Lab }) {
             <dt className="font-semibold">Tech</dt>
             <dd className="font-mono text-[11px]">{lab.tech}</dd>
           </div>
+          {!isLinkable && (
+            <a
+              href={notifyHref}
+              className="inline-flex items-center gap-1 text-[var(--color-brand)] hover:underline underline-offset-4 font-medium"
+            >
+              Notify me when it launches
+              <span aria-hidden>↗</span>
+            </a>
+          )}
         </dl>
       </div>
 
       <div className="col-span-9 sm:col-span-3 flex items-center justify-start sm:justify-end">
         <PlotDecoration
-          data={signature.data}
+          data={plotData}
           stroke={colors.stroke}
           fill={colors.fill}
           width={160}
           height={56}
-          label={`${lab.name} signature plot`}
+          label={`${lab.name} commit activity`}
         />
       </div>
 

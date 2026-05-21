@@ -21,6 +21,12 @@ type Props = {
   height?: number;
   /** Optional aria-label for assistive tech. */
   label?: string;
+  /**
+   * Render a quiet placeholder when data is missing (e.g., lab has no repo
+   * yet). Without this, the cell collapses and the right column looks
+   * broken. Defaults to true.
+   */
+  emptyPlaceholder?: boolean;
 };
 
 export function PlotDecoration({
@@ -30,8 +36,46 @@ export function PlotDecoration({
   width = 160,
   height = 56,
   label,
+  emptyPlaceholder = true,
 }: Props) {
-  if (!data.length) return null;
+  if (!data.length) {
+    if (!emptyPlaceholder) return null;
+    // No-signal state — a dashed flat baseline so the row stays balanced
+    // and the missing-data state reads as "intentional", not broken.
+    const baselineY = height / 2;
+    return (
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        width={width}
+        height={height}
+        role={label ? "img" : "presentation"}
+        aria-label={label ? `${label} — no signal yet` : undefined}
+        aria-hidden={label ? undefined : true}
+        className="overflow-visible"
+      >
+        <line
+          x1={4}
+          x2={width - 4}
+          y1={baselineY}
+          y2={baselineY}
+          stroke="#C8C5BC"
+          strokeWidth={1}
+          strokeDasharray="3 4"
+        />
+        <text
+          x={width / 2}
+          y={baselineY - 6}
+          fontSize="9"
+          fontFamily="ui-monospace, SFMono-Regular, monospace"
+          fill="#A3A097"
+          textAnchor="middle"
+          letterSpacing="0.05em"
+        >
+          no signal yet
+        </text>
+      </svg>
+    );
+  }
 
   const pad = 4;
   const w = width - pad * 2;

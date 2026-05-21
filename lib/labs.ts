@@ -21,7 +21,23 @@ export type Lab = {
   tech: string;
   accent: string;
   border: string;
+  /**
+   * GitHub repo path like `"cuvetsmo/cuvetsmo-imaging"` — used by `lib/github.ts`
+   * to fetch live commit activity. `null` for labs that haven't materialized
+   * into a repo yet (AI, Robotics).
+   */
+  githubRepo: string | null;
 };
+
+/**
+ * One-line "what we're working on this week" pin shown above the All labs
+ * section. Palm edits this directly; intentionally NOT in a CMS — friction is
+ * a feature (forces real updates, not auto-generated noise).
+ *
+ * Convention: present tense, concrete, naming the lab. Empty string hides
+ * the pin entirely.
+ */
+export const CURRENT_FOCUS = "AI Lab — discovery interviews with Y5/Y6 students on what Norberg/CHD review currently feels like.";
 
 export const LABS: Lab[] = [
   {
@@ -38,6 +54,7 @@ export const LABS: Lab[] = [
     tech: "DICOM, AI overlays",
     accent: "from-sky-500/10 to-sky-700/10",
     border: "border-sky-700/20",
+    githubRepo: "cuvetsmo/cuvetsmo-imaging",
   },
   {
     slug: "web3",
@@ -53,6 +70,7 @@ export const LABS: Lab[] = [
     tech: "Base Sepolia, Privy, EAS",
     accent: "from-emerald-500/10 to-emerald-700/10",
     border: "border-emerald-700/20",
+    githubRepo: "cuvetsmo/cuvetsmo-web3",
   },
   {
     slug: "ai",
@@ -68,6 +86,7 @@ export const LABS: Lab[] = [
     tech: "PyTorch, DICOM ML",
     accent: "from-amber-500/10 to-amber-700/10",
     border: "border-amber-700/20",
+    githubRepo: null,
   },
   {
     slug: "robotics",
@@ -83,6 +102,7 @@ export const LABS: Lab[] = [
     tech: "TBD",
     accent: "from-purple-500/10 to-purple-700/10",
     border: "border-purple-700/20",
+    githubRepo: null,
   },
 ];
 
