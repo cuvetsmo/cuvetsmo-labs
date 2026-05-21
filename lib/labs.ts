@@ -37,7 +37,7 @@ export type Lab = {
  * Convention: present tense, concrete, naming the lab. Empty string hides
  * the pin entirely.
  */
-export const CURRENT_FOCUS = "AI Lab — discovery interviews with Y5/Y6 students on what Norberg/CHD review currently feels like.";
+export const CURRENT_FOCUS = "AI Lab — ai.cuvetsmo.com is live (Thai chatbot, free, no login). Next: Norberg/CHD vet-diagnosis specialist agent on top of it.";
 
 export const LABS: Lab[] = [
   {
@@ -76,14 +76,14 @@ export const LABS: Lab[] = [
     slug: "ai",
     name: "AI Lab",
     icon: "🤖",
-    status: "planned",
-    url: null,
+    status: "live",
+    url: "https://ai.cuvetsmo.com",
     descTh:
-      "AI สำหรับการวินิจฉัย — case archive Norberg/CHD ของรุ่น Palm + image classification",
+      "AI ภาษาไทยฟรี ไม่ต้อง login ไม่เก็บข้อความ · ค้นงานวิจัย veterinary 250 ล้านบทความ · ค้นเว็บข่าวสารใหม่ · สร้างภาพประกอบได้ · มีอ้างอิงทุกคำตอบ",
     descEn:
-      "AI for vet diagnosis — case archives and image classification",
-    audience: "Researcher, senior project",
-    tech: "PyTorch, DICOM ML",
+      "Free Thai AI chatbot — no login, no message storage. Search 250M veterinary research papers, query news from the web, generate illustrations. Every answer cites sources.",
+    audience: "นักศึกษาทุก year + บุคลากร",
+    tech: "LLM, RAG, OpenAlex, image gen",
     accent: "from-amber-500/10 to-amber-700/10",
     border: "border-amber-700/20",
     githubRepo: null,
